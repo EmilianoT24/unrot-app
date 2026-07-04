@@ -13,8 +13,8 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20 
-
+          node-version: 24
+          
       - name: Install dependencies
         run: npm install
 
@@ -26,7 +26,7 @@ jobs:
           cd ios
           
           # Automatically find your Expo workspace and scheme names
-          WORKSPACE=$(ls *.xcworkspace | head -n 1)
+          WORKSPACE=$(ls -d *.xcworkspace | head -n 1)
           SCHEME=$(basename "$WORKSPACE" .xcworkspace)
           echo "Found Workspace: $WORKSPACE"
           echo "Found Scheme: $SCHEME"
