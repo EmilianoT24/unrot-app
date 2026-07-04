@@ -1,0 +1,58 @@
+name: Build Unsigned iOS IPA
+
+on:
+  workflow_dispatch: # This allows you to click a button to start the build
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20 
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Generate iOS project (Expo Prebuild)
+        run: npx expo prebuild -p ios --clean
+
+      - name: Build Unsigned App
+        run: |
+          cd ios
+          
+          # Automatically find your Expo workspace and scheme names
+          WORKSPACE=$(ls *.xcworkspace | head -n 1)
+          SCHEME=$(basename "$WORKSPACE" .xcworkspace)
+          echo "Found Workspace: $WORKSPACE"
+          echo "Found Scheme: $SCHEME"
+          
+          # Build the app without requiring an Apple Developer account
+          xcodebuild build \
+            -workspace "$WORKSPACE" \
+            -scheme "$SCHEME" \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath derivedData \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Package into IPA
+        run: |
+          cd ios
+          mkdir -p Payload
+          # Move the compiled .app into the Payload folder
+          mv derivedData/Build/Products/Release-iphoneos/*.app Payload/
+          # Compress it into the final .ipa file AltStore needs
+          zip -r app.ipa Payload
+
+      - name: Upload Artifact for Download
+        uses: actions/upload-artifact@v4
+        with:
+          name: unrot-app-ipa
+          path: ios/app.ipa
