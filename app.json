@@ -2,13 +2,14 @@
   "expo": {
     "name": "unrot-app",
     "slug": "unrot-app",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "unrotapp",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon",
+      "buildNumber": "2",
+      "supportsTablet": true,
       "bundleIdentifier": "com.emilianot2401.unrotapp",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
