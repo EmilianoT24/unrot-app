@@ -1,7 +1,7 @@
 import { BlurView } from 'expo-blur';
 import { useRouter } from 'expo-router';
 import { useEffect } from 'react';
-import { Alert, Dimensions, Image, ImageBackground, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, AppState, Dimensions, Image, ImageBackground, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useUnrotStore } from '../store/useUnrotStore';
 
 
@@ -48,13 +48,25 @@ export default function HomeScreen() {
 
   const undoHabit = useUnrotStore((state) => state.undoHabit);
 
- 
+ const lastLoginDate = useUnrotStore((state) => state.lastLoginDate);
 
-  useEffect(() => {
-
+useEffect(() => {
+    // 1. Chequeo inicial cuando la pantalla se carga por primera vez
     checkDailyReset();
 
-  }, []);
+    // 2. Suscripción para detectar cuando la app vuelve del segundo plano
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      if (nextAppState === 'active') {
+        // La app volvió al primer plano, volvemos a revisar la fecha
+        checkDailyReset();
+      }
+    });
+
+    // Limpieza de la suscripción cuando el componente se desmonte
+    return () => {
+      subscription.remove();
+    };
+  }, [lastLoginDate]);
 
 
 
